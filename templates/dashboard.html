@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body data-theme="dark">
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-graph-up-arrow"></i> Trading Bot Dashboard
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="themeToggle">
+                    <label class="form-check-label" for="themeToggle">
+                        <i class="bi bi-moon-stars" id="themeIcon"></i>
+                    </label>
+                </div>
+                <button class="btn btn-success" id="startBtn">
+                    <i class="bi bi-play-fill"></i> Start
+                </button>
+                <button class="btn btn-danger" id="stopBtn" disabled>
+                    <i class="bi bi-stop-fill"></i> Stop
+                </button>
+                <button class="btn btn-secondary" id="configBtn">
+                    <i class="bi bi-gear-fill"></i> Config
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-wallet2"></i> Account Overview</h5>
+                        <span class="badge status-badge" id="botStatus">Stopped</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-label">Balance</div>
+                                    <div class="stat-value" id="balance">$0.00</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-label">Net Profit</div>
+                                    <div class="stat-value" id="netProfit">$0.00</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-label">Total Trades</div>
+                                    <div class="stat-value" id="totalTrades">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-terminal"></i> Console Output</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="clearConsoleBtn">
+                            <i class="bi bi-trash"></i> Clear
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="consoleOutput" class="console-output"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-sliders"></i> Current Parameters</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="currentParams" class="params-display">
+                            <p class="text-muted">No parameters loaded yet.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-box-seam"></i> Current Position</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="mlStrategyResults" class="params-display">
+                            <p class="text-muted">No active position.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2 mb-3">
+                    <button class="btn btn-warning" id="emergencySlBtn">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Emergency SL
+                    </button>
+                    <button class="btn btn-info" id="batchModifyTPSLBtn">
+                        <i class="bi bi-pencil-square"></i> Batch Modify TP/SL
+                    </button>
+                    <button class="btn btn-danger" id="batchCancelOrdersBtn">
+                        <i class="bi bi-x-circle"></i> Batch Cancel Orders
+                    </button>
+                </div>
+
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-list-check"></i> Open Orders</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="openTrades" class="trades-container">
+                            <p class="text-muted">No open orders</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="configModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-gear-fill"></i> Configuration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="accordion" id="configAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#generalSettings">
+                                    General Settings
+                                </button>
+                            </h2>
+                            <div id="generalSettings" class="accordion-collapse collapse show" data-bs-parent="#configAccordion">
+                                <div class="accordion-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">OKX API Key</label>
+                                        <input type="text" class="form-control" id="okxApiKey">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">OKX API Secret</label>
+                                        <input type="password" class="form-control" id="okxApiSecret">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">OKX Passphrase</label>
+                                        <input type="password" class="form-control" id="okxPassphrase">
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="useTestnet">
+                                        <label class="form-check-label" for="useTestnet">Use Testnet</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Symbol</label>
+                                        <input type="text" class="form-control" id="symbol">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Leverage</label>
+                                        <input type="number" class="form-control" id="leverage" min="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#strategyParameters">
+                                    Strategy Parameters
+                                </button>
+                            </h2>
+                            <div id="strategyParameters" class="accordion-collapse collapse" data-bs-parent="#configAccordion">
+                                <div class="accordion-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Short Safety Line Price</label>
+                                        <input type="number" class="form-control" id="shortSafetyLinePrice" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Long Safety Line Price</label>
+                                        <input type="number" class="form-control" id="longSafetyLinePrice" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Allowed Used (USDT)</label>
+                                        <input type="number" class="form-control" id="maxAllowedUsed" min="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Entry Price Offset</label>
+                                        <input type="number" class="form-control" id="entryPriceOffset" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Batch Offset</label>
+                                        <input type="number" class="form-control" id="batchOffset" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">TP Price Offset</label>
+                                        <input type="number" class="form-control" id="tpPriceOffset" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">SL Price Offset</label>
+                                        <input type="number" class="form-control" id="slPriceOffset" step="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Loop Time (seconds)</label>
+                                        <input type="number" class="form-control" id="loopTimeSeconds" min="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Rate Divisor</label>
+                                        <input type="number" class="form-control" id="rateDivisor" min="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Batch Size Per Loop</label>
+                                        <input type="number" class="form-control" id="batchSizePerLoop" min="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Order Amount</label>
+                                        <input type="number" class="form-control" id="minOrderAmount" step="0.001">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Cancel Unfilled Order (seconds)</label>
+                                        <input type="number" class="form-control" id="cancelUnfilledSeconds" min="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cancelConditions">
+                                    Cancel Conditions
+                                </button>
+                            </h2>
+                            <div id="cancelConditions" class="accordion-collapse collapse" data-bs-parent="#configAccordion">
+                                <div class="accordion-body">
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="cancelOnTpPriceBelowMarket">
+                                        <label class="form-check-label" for="cancelOnTpPriceBelowMarket">Cancel if TP price becomes below market price</label>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="cancelOnEntryPriceBelowMarket">
+                                        <label class="form-check-label" for="cancelOnEntryPriceBelowMarket">Cancel if Entry price becomes below market price</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveConfigBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
