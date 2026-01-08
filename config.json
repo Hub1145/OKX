@@ -1,0 +1,23 @@
+{
+  "okx_api_key": "Your_OKX_API_key",
+  "okx_api_secret": "Your_OKX_Secret_key",
+  "okx_passphrase": "Your_OKX_Passphrase",
+  "use_testnet": false,
+  "symbol": "ETH-USDT-SWAP",
+  "short_safety_line_price": 2980.15,
+  "long_safety_line_price": 2970.32,
+  "leverage": 20,
+  "max_allowed_used": 1000,
+  "entry_price_offset": 1,
+  "batch_offset": 1,
+  "tp_price_offset": 0.6,
+  "sl_price_offset": 30,
+  "loop_time_seconds": 10,
+  "rate_divisor": 4,
+  "batch_size_per_loop": 2,
+  "min_order_amount": 100,
+  "cancel_unfilled_seconds": 90,
+  "cancel_on_tp_price_below_market": true,
+  "cancel_on_entry_price_below_market": true,
+  "account_update_interval_seconds": 10
+}
