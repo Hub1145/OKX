@@ -5,4 +5,5 @@ python-engineio==4.8.0
 pandas==2.1.4
 numpy==1.26.2
 requests==2.31.0
-websocket-client==1.9.0 # Corrected version for proper WebSocket functionality
+ta
+websocket-client==1.9.0 
